@@ -678,7 +678,7 @@ export default function ArSLDatasetCollection() {
                 </div>
 
                 <p className="text-xs text-gray-400 mt-6">
-                  © 2024 Wesal - Arabic Sign Language Dataset
+                  © 2026 Wesall - Arabic Sign Language Dataset
                 </p>
               </div>
             </Card>
