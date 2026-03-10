@@ -117,6 +117,7 @@ export default function ArSLDatasetCollection() {
   ]
 
   // التحقق من الموبايل عند تحميل الصفحة وعند تغيير الحجم
+    // التحقق من الموبايل عند تحميل الصفحة وعند تغيير الحجم
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(isMobileDevice())
@@ -151,38 +152,61 @@ export default function ArSLDatasetCollection() {
     validateUsername(value)
   }
 
+  // ========== دالة initCamera المعدلة بالكامل ==========
   const initCamera = useCallback(async () => {
     try {
       setCameraError(null)
       
+      // قيود أساسية: كاميرا أمامية، بدون دقة محددة - المتصفح يختار الأفضل
       const constraints: MediaStreamConstraints = {
-        video: isMobile ? {
-          width: { ideal: 720 },
-          height: { ideal: 1280 },
-          facingMode: "user",
-          aspectRatio: 9/16
-        } : {
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-          facingMode: "user",
-          aspectRatio: 16/9
+        video: {
+          facingMode: "user", // كاميرا أمامية دائماً
         },
         audio: false
       }
       
       const stream = await navigator.mediaDevices.getUserMedia(constraints)
+      
+      // التحقق من وجود مسارات فيديو
+      if (stream.getVideoTracks().length === 0) {
+        throw new Error('No video track found')
+      }
+      
       streamRef.current = stream
       if (previewRef.current) {
         previewRef.current.srcObject = stream
-        previewRef.current.setAttribute('playsinline', 'true')
-        await previewRef.current.play()
+        previewRef.current.setAttribute('playsinline', 'true') // مهم للموبايل
+        
+        // محاولة التشغيل
+        try {
+          await previewRef.current.play()
+        } catch (playError) {
+          console.warn('Autoplay failed:', playError)
+          // لا نرمي الخطأ هنا، لأن الكاميرا قد تكون جاهزة لكن التشغيل التلقائي محظور
+        }
       }
       setCameraReady(true)
-    } catch (error) {
-      setCameraError("لا يمكن الوصول للكاميرا. يرجى التحقق من الصلاحيات.")
+    } catch (error: any) {
+      console.error('Camera initialization error:', error)
+      let errorMessage = "لا يمكن الوصول للكاميرا. يرجى التحقق من الصلاحيات."
+      
+      // رسائل خطأ أكثر تحديداً
+      if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+        errorMessage = "تم رفض الوصول للكاميرا. يرجى السماح بالوصول في إعدادات المتصفح."
+      } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+        errorMessage = "لم يتم العثور على كاميرا. تأكد من توصيل كاميرا بجهازك."
+      } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+        errorMessage = "الكاميرا مشغولة بتطبيق آخر. يرجى إغلاق التطبيقات الأخرى."
+      } else if (error.name === 'OverconstrainedError') {
+        errorMessage = "لا يمكن تلبية متطلبات الكاميرا. حاول مرة أخرى."
+      }
+      
+      setCameraError(errorMessage)
+      setCameraReady(false)
     }
-  }, [isMobile])
+  }, []) // تم إزالة isMobile من التبعيات
 
+  // ========== باقي الدوال كما هي بدون تغيير ==========
   const stopCamera = useCallback(() => {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop())
