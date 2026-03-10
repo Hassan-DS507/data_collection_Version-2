@@ -23,27 +23,34 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  // تحديث العنوان ليعكس اسم المشروع
+  // تحديث العنوان ليعكس اسم المشروع بالعربي
   title: {
-    default: 'Wesal - Arabic Sign Language Dataset',
-    template: '%s | Wesal',
+    default: 'وصال - مجموعة بيانات لغة الإشارة العربية',
+    template: '%s | وصال',
   },
-  description: 'Contribute to preserving Arabic Sign Language by recording video samples for machine learning dataset',
+  description: 'ساهم في الحفاظ على لغة الإشارة العربية من خلال تسجيل فيديوهات للإشارات لدعم تعلم الآلة والأبحاث',
   
-  // إضافة كلمات مفتاحية للبحث
+  // إضافة كلمات مفتاحية للبحث بالعربي والإنجليزي
   keywords: [
+    'لغة الإشارة العربية',
+    'وصال',
+    'مجموعة بيانات',
+    'تعلم الآلة',
+    'ذكاء اصطناعي',
+    'صعوبات سمع',
+    'ترجمة لغة الإشارة',
     'Arabic Sign Language',
     'ArSL',
     'Dataset Collection',
     'Machine Learning',
     'AI Training Data',
     'Sign Language Recognition',
-    'وصال',
-    'لغة الإشارة العربية'
+    'Deaf community',
+    'Hearing impaired'
   ],
   
   // معلومات المؤلف والفريق
-  authors: [{ name: 'Wesal Team' }],
+  authors: [{ name: 'فريق وصال', url: 'https://wesal.vercel.app' }],
   
   // أيقونات محسنة
   icons: {
@@ -72,29 +79,30 @@ export const metadata: Metadata = {
   // إعدادات المانيفست للتطبيق
   manifest: '/manifest.json',
   
-  // إعدادات الـ Open Graph للتواصل الاجتماعي
+  // إعدادات الـ Open Graph للتواصل الاجتماعي - مع دعم العربية
   openGraph: {
-    title: 'Wesal - Arabic Sign Language Dataset',
-    description: 'Help preserve Arabic Sign Language by contributing to our dataset',
+    title: 'وصال - مجموعة بيانات لغة الإشارة العربية',
+    description: 'ساهم في الحفاظ على لغة الإشارة العربية من خلال تسجيل فيديوهات للإشارات',
     url: 'https://wesal.vercel.app',
-    siteName: 'Wesal',
+    siteName: 'وصال',
     images: [
       {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'Wesal - Arabic Sign Language Dataset',
+        alt: 'وصال - مجموعة بيانات لغة الإشارة العربية',
       },
     ],
-    locale: 'en_US',
+    locale: 'ar_AR',
+    alternateLocale: ['en_US'],
     type: 'website',
   },
   
   // إعدادات تويتر
   twitter: {
     card: 'summary_large_image',
-    title: 'Wesal - Arabic Sign Language Dataset',
-    description: 'Help preserve Arabic Sign Language by contributing to our dataset',
+    title: 'وصال - مجموعة بيانات لغة الإشارة العربية',
+    description: 'ساهم في الحفاظ على لغة الإشارة العربية من خلال تسجيل فيديوهات للإشارات',
     images: ['/twitter-image.png'],
     creator: '@wesal_team',
   },
@@ -124,16 +132,22 @@ export const metadata: Metadata = {
   alternates: {
     canonical: '/',
     languages: {
+      'ar': '/',
       'en': '/en',
-      'ar': '/ar',
     },
   },
   
   // إعدادات الـ app links
   appleWebApp: {
     capable: true,
-    title: 'Wesal',
+    title: 'وصال',
     statusBarStyle: 'default',
+    startupImage: [
+      {
+        url: '/apple-splash-2048-2732.png',
+        media: '(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)',
+      },
+    ],
   },
   
   // إعدادات التنسيق
@@ -142,6 +156,16 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
+  
+  // إضافة التصنيف العمري
+  applicationName: 'وصال',
+  generator: 'Next.js',
+  referrer: 'origin-when-cross-origin',
+  creator: 'فريق وصال',
+  publisher: 'وصال',
+  
+  // إضافة الـ category
+  category: 'education',
 }
 
 export default function RootLayout({
@@ -150,10 +174,10 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" dir="ltr" className={inter.variable}>
+    <html lang="ar" dir="rtl" className={inter.variable}>
       <head>
         {/* إضافة وصف قصير للمتصفحات القديمة */}
-        <meta name="description" content="Contribute to Arabic Sign Language dataset" />
+        <meta name="description" content="ساهم في الحفاظ على لغة الإشارة العربية من خلال تسجيل فيديوهات للإشارات" />
         
         {/* إضافة حماية من الـ XSS */}
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
@@ -165,10 +189,10 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="Wesal" />
+        <meta name="apple-mobile-web-app-title" content="وصال" />
         
         {/* إضافة الـ application-name */}
-        <meta name="application-name" content="Wesal" />
+        <meta name="application-name" content="وصال" />
         
         {/* إضافة الـ msapplication-TileImage لـ Windows */}
         <meta name="msapplication-TileImage" content="/ms-icon-144x144.png" />
@@ -189,6 +213,19 @@ export default function RootLayout({
         {/* إضافة الـ dns-prefetch للخدمات الخارجية */}
         <link rel="dns-prefetch" href="https://drive.google.com" />
         <link rel="dns-prefetch" href="https://www.googleapis.com" />
+        
+        {/* إضافة الـ preconnect لتحسين أداء Google Drive */}
+        <link rel="preconnect" href="https://drive.google.com" />
+        <link rel="preconnect" href="https://doc-0s-2k-docs.googleusercontent.com" />
+        
+        {/* إضافة meta tag للغة العربية */}
+        <meta name="language" content="ar" />
+        
+        {/* إضافة meta tag لدعم شاشات اللمس */}
+        <meta name="touch-action" content="pan-y" />
+        
+        {/* إضافة meta tag لمنع تحويل الأرقام */}
+        <meta name="format-detection" content="telephone=no, date=no, address=no, email=no" />
       </head>
       <body 
         className={`
@@ -205,12 +242,12 @@ export default function RootLayout({
       >
         {/* إضافة div للتطبيق مع بعض الخصائص المفيدة */}
         <div id="app" className="flex flex-col min-h-screen">
-          {/* إضافة skip link للوصولية */}
+          {/* إضافة skip link للوصولية - مترجم للعربية */}
           <a 
             href="#main-content" 
-            className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded-lg z-50"
+            className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:right-4 bg-blue-600 text-white px-4 py-2 rounded-lg z-50"
           >
-            Skip to main content
+            تخطي إلى المحتوى الرئيسي
           </a>
           
           {/* المحتوى الرئيسي */}

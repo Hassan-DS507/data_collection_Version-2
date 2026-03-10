@@ -1,0 +1,21 @@
+{
+  "users": [
+    {
+      "id": "user_1773097607490_8jpj20ciy",
+      "name": "حسن",
+      "email": "01026807392ez@gmail.com",
+      "folderId": null,
+      "recordedSigns": [],
+      "skippedSigns": [],
+      "totalRecorded": 0,
+      "totalSkipped": 0,
+      "createdAt": "2026-03-09T23:06:47.490Z",
+      "lastActive": "2026-03-09T23:10:47.399Z"
+    }
+  ],
+  "stats": {
+    "totalUsers": 1,
+    "totalRecordings": 0,
+    "totalSkipped": 0
+  }
+}

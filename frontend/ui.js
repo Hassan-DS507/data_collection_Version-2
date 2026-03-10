@@ -1,10 +1,11 @@
-// UI Controller for Arabic Sign Language Dataset Collection
-// Handles step navigation, user interactions, and state management
+// واجهة المستخدم لمجموعة بيانات لغة الإشارة العربية
+// تتحكم في التنقل بين الخطوات وتفاعلات المستخدم وإدارة الحالة
 
 const UI = {
   // State
   currentStep: 'welcome',
   username: '',
+  email: '',
   currentWordIndex: 0,
   totalRecorded: 0,
   referenceVideos: [],
@@ -17,7 +18,7 @@ const UI = {
     this.cacheElements();
     this.bindEvents();
     this.loadReferenceVideos();
-    console.log('[System] UI initialized');
+    console.log('[النظام] تم تهيئة واجهة المستخدم');
   },
   
   // Cache DOM elements for performance
@@ -31,7 +32,9 @@ const UI = {
       
       // Welcome step
       usernameInput: document.getElementById('username'),
+      emailInput: document.getElementById('email'),
       btnStart: document.getElementById('btn-start'),
+      usernameError: document.getElementById('username-error'),
       
       // Instructions step
       btnContinue: document.getElementById('btn-continue'),
@@ -67,13 +70,33 @@ const UI = {
     };
   },
   
+  // التحقق من صحة الاسم (منع المسافات)
+  validateUsername(name) {
+    if (name.includes(' ')) {
+      if (this.elements.usernameError) {
+        this.elements.usernameError.textContent = 'لا يمكن استخدام مسافات في الاسم. استخدم شرطة سفلية _ بدلاً من ذلك';
+        this.elements.usernameError.style.display = 'block';
+      }
+      if (this.elements.btnStart) this.elements.btnStart.disabled = true;
+      return false;
+    }
+    if (this.elements.usernameError) {
+      this.elements.usernameError.style.display = 'none';
+    }
+    return true;
+  },
+  
   // Bind event listeners
   bindEvents() {
     // Username input
     if(this.elements.usernameInput) {
       this.elements.usernameInput.addEventListener('input', (e) => {
         const value = e.target.value.trim();
-        this.elements.btnStart.disabled = value.length === 0;
+        const isValid = this.validateUsername(value);
+        if (isValid) {
+          this.username = value;
+        }
+        this.updateStartButton();
       });
       
       // Enter key on username input
@@ -84,11 +107,20 @@ const UI = {
       });
     }
     
+    // Email input
+    if(this.elements.emailInput) {
+      this.elements.emailInput.addEventListener('input', (e) => {
+        this.email = e.target.value.trim();
+        this.updateStartButton();
+      });
+    }
+    
     // Start button
     if(this.elements.btnStart) {
       this.elements.btnStart.addEventListener('click', () => {
         this.username = this.elements.usernameInput.value.trim();
-        if (this.username) {
+        this.email = this.elements.emailInput.value.trim();
+        if (this.username && this.email && this.validateUsername(this.username)) {
           this.goToStep('instructions');
         }
       });
@@ -146,14 +178,23 @@ const UI = {
     }
   },
   
+  // تحديث حالة زر البدء
+  updateStartButton() {
+    if (this.elements.btnStart) {
+      const usernameValid = this.username && this.validateUsername(this.username);
+      const emailValid = this.email && this.email.includes('@') && this.email.includes('.');
+      this.elements.btnStart.disabled = !(usernameValid && emailValid);
+    }
+  },
+  
   // Load reference videos from configuration directly
   loadReferenceVideos() {
     if (typeof CONFIG !== 'undefined' && CONFIG.referenceVideos) {
       this.referenceVideos = CONFIG.referenceVideos;
-      console.log(`[System] Loaded ${this.referenceVideos.length} references directly from CONFIG`);
+      console.log(`[النظام] تم تحميل ${this.referenceVideos.length} فيديو مرجعي من CONFIG`);
     } else {
-      console.error('[System] CONFIG is missing or referenceVideos not found!');
-      this.showError('Unable to load configuration. Please ensure config.js is properly loaded.');
+      console.error('[النظام] CONFIG غير موجود أو referenceVideos غير متوفر!');
+      this.showError('تعذر تحميل الإعدادات. يرجى التأكد من تحميل ملف config.js بشكل صحيح.');
     }
   },
   
@@ -180,7 +221,7 @@ const UI = {
     if(typeof Camera !== 'undefined') {
       await Camera.init();
     } else {
-      console.error('[System] Camera object is not defined. Make sure camera.js is loaded.');
+      console.error('[النظام] كائن الكاميرا غير معرف. تأكد من تحميل camera.js');
     }
   },
   
@@ -210,9 +251,9 @@ const UI = {
       this.elements.referenceVideo.onerror = () => {
         if(this.elements.referenceLoading) {
           this.elements.referenceLoading.innerHTML = `
-            <p style="color: white;">Error loading video from Google Drive.</p>
-            <p style="color: #888; font-size: 0.875rem;">Sign: ${current.word}</p>
-            <p style="color: #ff6b6b; font-size: 0.75rem; margin-top: 5px;">Verify the Google Drive folder is set to "Anyone with the link can view".</p>
+            <p style="color: white;">خطأ في تحميل الفيديو من Google Drive</p>
+            <p style="color: #888; font-size: 0.875rem;">الإشارة: ${current.word}</p>
+            <p style="color: #ff6b6b; font-size: 0.75rem; margin-top: 5px;">تأكد من أن مجلد Google Drive مضبوط على "أي شخص لديه الرابط يمكنه العرض"</p>
           `;
         }
       };
@@ -225,7 +266,7 @@ const UI = {
   updateProgress() {
     const total = this.referenceVideos.length;
     const current = this.currentWordIndex + 1;
-    if(this.elements.progressText) this.elements.progressText.textContent = `Sign ${current} of ${total}`;
+    if(this.elements.progressText) this.elements.progressText.textContent = `إشارة ${current} من ${total}`;
   },
   
   // Reset recording UI for new recording
@@ -233,7 +274,7 @@ const UI = {
     if(this.elements.btnRecord) {
       this.elements.btnRecord.style.display = 'inline-flex';
       this.elements.btnRecord.disabled = false;
-      this.elements.btnRecord.innerHTML = 'Record';
+      this.elements.btnRecord.innerHTML = 'تسجيل';
     }
     if(this.elements.btnRetry) this.elements.btnRetry.style.display = 'none';
     if(this.elements.btnUpload) this.elements.btnUpload.style.display = 'none';
@@ -246,7 +287,7 @@ const UI = {
   showRecordingStarted() {
     if(this.elements.btnRecord) {
       this.elements.btnRecord.disabled = true;
-      this.elements.btnRecord.innerHTML = '<span class="record-icon"></span> Recording...';
+      this.elements.btnRecord.innerHTML = '<span class="record-icon"></span> جاري التسجيل...';
     }
     if(this.elements.recordingIndicator) this.elements.recordingIndicator.style.display = 'flex';
     if(this.elements.timerOverlay) this.elements.timerOverlay.style.display = 'flex';
@@ -276,7 +317,7 @@ const UI = {
     const remaining = Math.max(0, (duration - elapsed) / 1000);
     const progress = (elapsed / duration) * 100;
     if(this.elements.timerProgress) this.elements.timerProgress.style.width = `${progress}%`;
-    if(this.elements.timerText) this.elements.timerText.textContent = `${remaining.toFixed(1)}s`;
+    if(this.elements.timerText) this.elements.timerText.textContent = `${remaining.toFixed(1)}ث`;
   },
   
   // Show recording complete state
@@ -295,7 +336,7 @@ const UI = {
       this.elements.playbackVideo.load();
     }
     
-    this.showStatus('Recording complete. Review and upload, or try again.', 'info');
+    this.showStatus('تم التسجيل. راجع الفيديو وارفعه، أو حاول مرة أخرى', 'info');
   },
   
   // Upload recording
@@ -303,30 +344,36 @@ const UI = {
     const current = this.referenceVideos[this.currentWordIndex];
     const filename = `${current.word}#${this.username}.mp4`;
     
-    if(this.elements.btnUpload) this.elements.btnUpload.disabled = true;
+    if(this.elements.btnUpload) {
+      this.elements.btnUpload.disabled = true;
+      this.elements.btnUpload.innerHTML = 'جاري الرفع...';
+    }
     if(this.elements.btnRetry) this.elements.btnRetry.disabled = true;
-    this.showStatus('Uploading...', 'info');
+    this.showStatus('جاري رفع الفيديو...', 'info');
     
     try {
       if(typeof Camera !== 'undefined') {
-        const success = await Camera.uploadRecording(filename);
+        const success = await Camera.uploadRecording(filename, this.username, this.email, current.word);
         
         if (success) {
           this.totalRecorded++;
-          this.showStatus('Upload successful!', 'success');
+          this.showStatus('تم الرفع بنجاح!', 'success');
           
           // Auto-advance after a short delay
           setTimeout(() => {
             this.nextWord();
           }, 1500);
         } else {
-          throw new Error('Upload failed');
+          throw new Error('فشل الرفع');
         }
       }
     } catch (error) {
-      console.error('[System] Upload error:', error);
-      this.showStatus('Upload failed. Please try again.', 'error');
-      if(this.elements.btnUpload) this.elements.btnUpload.disabled = false;
+      console.error('[النظام] خطأ في الرفع:', error);
+      this.showStatus('فشل الرفع. حاول مرة أخرى', 'error');
+      if(this.elements.btnUpload) {
+        this.elements.btnUpload.disabled = false;
+        this.elements.btnUpload.innerHTML = 'حفظ والتالي';
+      }
       if(this.elements.btnRetry) this.elements.btnRetry.disabled = false;
     }
   },
@@ -356,8 +403,11 @@ const UI = {
     this.currentWordIndex = 0;
     this.totalRecorded = 0;
     this.username = '';
+    this.email = '';
     if(this.elements.usernameInput) this.elements.usernameInput.value = '';
+    if(this.elements.emailInput) this.elements.emailInput.value = '';
     if(this.elements.btnStart) this.elements.btnStart.disabled = true;
+    if(this.elements.usernameError) this.elements.usernameError.style.display = 'none';
     this.goToStep('welcome');
   },
   
@@ -395,7 +445,7 @@ const UI = {
   onCameraError(message) {
     if(this.elements.cameraLoading) {
       this.elements.cameraLoading.innerHTML = `
-        <p style="color: #ff6b6b;">Camera Error</p>
+        <p style="color: #ff6b6b;">خطأ في الكاميرا</p>
         <p style="color: #888; font-size: 0.875rem;">${message}</p>
       `;
     }
