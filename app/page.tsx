@@ -4,10 +4,10 @@ import { useState, useRef, useCallback, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
-import { 
-  Camera, 
-  Video, 
-  CheckCircle, 
+import {
+  Camera,
+  Video,
+  CheckCircle,
   AlertCircle,
   SkipForward,
   LogOut,
@@ -15,7 +15,8 @@ import {
   RotateCcw,
   Upload,
   User,
-  Heart
+  Heart,
+  HelpCircle
 } from "lucide-react"
 import Image from "next/image"
 import { SIGNS, type Sign } from "@/config/signs"
@@ -60,7 +61,7 @@ export default function ArSLDatasetCollection() {
   const [showExitDialog, setShowExitDialog] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [currentInstructionPage, setCurrentInstructionPage] = useState(0)
-  
+
   const streamRef = useRef<MediaStream | null>(null)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const chunksRef = useRef<Blob[]>([])
@@ -68,7 +69,7 @@ export default function ArSLDatasetCollection() {
   const playbackRef = useRef<HTMLVideoElement>(null)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
-  
+
   const currentSign: Sign | undefined = SIGNS[currentIndex]
   const totalSigns = SIGNS.length
   const progress = ((currentIndex + 1) / totalSigns) * 100
@@ -76,14 +77,14 @@ export default function ArSLDatasetCollection() {
   // صفحات التعليمات المقسمة
   const instructionPages = [
     {
-  title: "مرحباً بك في وصال",
-  description: "وصال يهدف إلى مساعدة الصم وضعاف السمع على التواصل بسهولة أكبر مع الآخرين من خلال استخدام تقنيات الذكاء الاصطناعي الحديثة.",
-  points: [
-    "مشاركتك البسيطة تساعد في تطوير تطبيقات تترجم لغة الإشارة",
-    "كل فيديو تسجله يقربنا خطوة من عالم أكثر تواصلاً",
-    "لا تحتاج أي خبرة مسبقة، فقط بضع دقائق من وقتك"
-  ]
-},
+      title: "مرحباً بك في وصال",
+      description: "وصال يهدف إلى مساعدة الصم وضعاف السمع على التواصل بسهولة أكبر مع الآخرين من خلال استخدام تقنيات الذكاء الاصطناعي الحديثة.",
+      points: [
+        "مشاركتك البسيطة تساعد في تطوير تطبيقات تترجم لغة الإشارة",
+        "كل فيديو تسجله يقربنا خطوة من عالم أكثر تواصلاً",
+        "لا تحتاج أي خبرة مسبقة، فقط بضع دقائق من وقتك"
+      ]
+    },
     {
       title: "كيف ستساعد؟",
       description: "ثلاث خطوات بسيطة تصنع الفرق",
@@ -117,12 +118,12 @@ export default function ArSLDatasetCollection() {
   ]
 
   // التحقق من الموبايل عند تحميل الصفحة وعند تغيير الحجم
-    // التحقق من الموبايل عند تحميل الصفحة وعند تغيير الحجم
+  // التحقق من الموبايل عند تحميل الصفحة وعند تغيير الحجم
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(isMobileDevice())
     }
-    
+
     checkMobile()
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
@@ -156,7 +157,7 @@ export default function ArSLDatasetCollection() {
   const initCamera = useCallback(async () => {
     try {
       setCameraError(null)
-      
+
       // قيود أساسية: كاميرا أمامية، بدون دقة محددة - المتصفح يختار الأفضل
       const constraints: MediaStreamConstraints = {
         video: {
@@ -164,19 +165,19 @@ export default function ArSLDatasetCollection() {
         },
         audio: false
       }
-      
+
       const stream = await navigator.mediaDevices.getUserMedia(constraints)
-      
+
       // التحقق من وجود مسارات فيديو
       if (stream.getVideoTracks().length === 0) {
         throw new Error('No video track found')
       }
-      
+
       streamRef.current = stream
       if (previewRef.current) {
         previewRef.current.srcObject = stream
         previewRef.current.setAttribute('playsinline', 'true') // مهم للموبايل
-        
+
         // محاولة التشغيل
         try {
           await previewRef.current.play()
@@ -189,7 +190,7 @@ export default function ArSLDatasetCollection() {
     } catch (error: any) {
       console.error('Camera initialization error:', error)
       let errorMessage = "لا يمكن الوصول للكاميرا. يرجى التحقق من الصلاحيات."
-      
+
       // رسائل خطأ أكثر تحديداً
       if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
         errorMessage = "تم رفض الوصول للكاميرا. يرجى السماح بالوصول في إعدادات المتصفح."
@@ -200,7 +201,7 @@ export default function ArSLDatasetCollection() {
       } else if (error.name === 'OverconstrainedError') {
         errorMessage = "لا يمكن تلبية متطلبات الكاميرا. حاول مرة أخرى."
       }
-      
+
       setCameraError(errorMessage)
       setCameraReady(false)
     }
@@ -235,22 +236,22 @@ export default function ArSLDatasetCollection() {
     setRecordedBlob(null)
     setRecordingProgress(0)
     setUploadStatus("idle")
-    
+
     const mimeType = CONFIG.mimeTypes.find(m => MediaRecorder.isTypeSupported(m)) || ""
     const mediaRecorder = new MediaRecorder(streamRef.current, { mimeType })
     mediaRecorderRef.current = mediaRecorder
-    
+
     mediaRecorder.ondataavailable = (e) => {
       if (e.data && e.data.size > 0) chunksRef.current.push(e.data)
     }
-    
+
     mediaRecorder.onstop = () => {
       const blob = new Blob(chunksRef.current, { type: "video/mp4" })
       setRecordedBlob(blob)
       setIsRecording(false)
       if (playbackRef.current) playbackRef.current.src = URL.createObjectURL(blob)
     }
-    
+
     mediaRecorder.start(100)
     setIsRecording(true)
     const startTime = Date.now()
@@ -271,51 +272,13 @@ export default function ArSLDatasetCollection() {
     setStatusMessage("")
   }, [])
 
-  const uploadRecording = useCallback(async () => {
-    if (!recordedBlob || !currentSign) return
-    
-    const filename = `${currentSign.word}#${username}.mp4`
-    setUploadStatus("uploading")
-    setStatusMessage("جاري رفع الفيديو...")
-    
-    try {
-      const formData = new FormData()
-      formData.append("video", recordedBlob)
-      formData.append("filename", filename)
-      formData.append("username", username)
-      formData.append("word", currentSign.word)
-      
-      const response = await fetch(CONFIG.apiEndpoint, {
-        method: "POST",
-        body: formData
-      })
-      
-      const data = await response.json();
-
-      if (!response.ok) throw new Error(data.error || "فشل الرفع")
-      
-      setUploadStatus("success")
-      setStatusMessage("تم حفظ الفيديو بنجاح!")
-      setTotalRecorded(prev => prev + 1)
-      
-      setTimeout(() => {
-        nextWord()
-      }, 1000)
-      
-    } catch (error: any) {
-      console.error("Upload error:", error)
-      setUploadStatus("error")
-      setStatusMessage(`فشل الرفع: ${error.message}`)
-    }
-  }, [recordedBlob, currentSign, username])
-
   const skipWord = useCallback(() => {
     setTotalSkipped(prev => prev + 1)
     setRecordedBlob(null)
     setRecordingProgress(0)
     setUploadStatus("idle")
     setStatusMessage("")
-    
+
     if (currentIndex + 1 >= totalSigns) {
       setStep("complete")
       stopCamera()
@@ -333,6 +296,63 @@ export default function ArSLDatasetCollection() {
       resetRecording()
     }
   }, [currentIndex, totalSigns, stopCamera, resetRecording])
+
+  const uploadRecording = useCallback(async () => {
+    if (!recordedBlob || !currentSign) return;
+
+    const safeWordId = currentSign.word.trim().replace(/\s+/g, '_');
+    let baseUsername = username.trim().replace(/\s+/g, '_');
+
+    // Generate or retrieve a 4-character unique ID for the user's browser
+    let userUuid = localStorage.getItem('user_uuid');
+    if (!userUuid) {
+      userUuid = Math.random().toString(36).substring(2, 6);
+      localStorage.setItem('user_uuid', userUuid);
+    }
+
+    // Append the UUID to the username
+    const safeUsername = `${baseUsername}_${userUuid}`;
+
+    const storageKey = `take_${safeWordId}_${safeUsername}`;
+    let currentTake = parseInt(localStorage.getItem(storageKey) || '0');
+    currentTake += 1;
+    localStorage.setItem(storageKey, currentTake.toString());
+
+    const formattedTake = currentTake.toString().padStart(2, '0');
+    const filename = `${safeWordId}_${safeUsername}_${formattedTake}.mp4`;
+
+    setUploadStatus("uploading");
+    setStatusMessage("جاري رفع الفيديو...");
+
+    try {
+      const formData = new FormData();
+      formData.append("video", recordedBlob);
+      formData.append("filename", filename);
+      formData.append("username", username);
+      formData.append("word", currentSign.word);
+
+      const response = await fetch(CONFIG.apiEndpoint, {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "فشل الرفع");
+
+      setUploadStatus("success");
+      setStatusMessage("تم حفظ الفيديو بنجاح!");
+      setTotalRecorded(prev => prev + 1);
+
+      setTimeout(() => {
+        nextWord();
+      }, 1000);
+
+    } catch (error: any) {
+      console.error("Upload error:", error);
+      setUploadStatus("error");
+      setStatusMessage(`فشل الرفع: ${error.message}`);
+    }
+  }, [recordedBlob, currentSign, username, nextWord]);
 
   const endSession = useCallback(() => {
     stopCamera()
@@ -365,7 +385,7 @@ export default function ArSLDatasetCollection() {
       {/* Progress Bar */}
       {step === "recording" && (
         <div className="fixed top-0 left-0 w-full h-1 bg-gray-200 z-50">
-          <div 
+          <div
             className="h-full bg-blue-600 transition-all duration-300"
             style={{ width: `${progress}%` }}
           />
@@ -391,9 +411,18 @@ export default function ArSLDatasetCollection() {
                 <p className="text-xs text-gray-500">مشروع الحفاظ على لغة الإشارة العربية</p>
               </div>
             </div>
-            
+
             {username && step !== "welcome" && step !== "instructions" && (
               <div className="flex items-center gap-3">
+                <a
+                  href="/ArSL_Recording_Guidelines_v2.html"
+                  target="_blank"
+                  className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-yellow-50 border border-yellow-200 hover:bg-yellow-100 transition-colors rounded-full"
+                  title="دليل التصوير"
+                >
+                  <HelpCircle className="w-4 h-4 text-yellow-700" />
+                  <span className="text-sm font-medium text-yellow-800">دليل التصوير</span>
+                </a>
                 <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-full">
                   <User className="w-4 h-4 text-gray-600" />
                   <span className="text-sm font-medium text-gray-700">{username}</span>
@@ -425,9 +454,14 @@ export default function ArSLDatasetCollection() {
                   <h2 className="text-2xl font-bold text-gray-900 mb-3">
                     مرحباً بك في وصال
                   </h2>
-                  <p className="text-gray-600 leading-relaxed">
-                    مشروع يهدف إلى مساعدة الصم وضعاف السمع من خلال بناء مجموعة بيانات للغة الإشارة العربية. مشاركتك البسيطة تصنع فرقاً كبيراً في حياتهم.
-                  </p>
+                  <div className="text-gray-600 leading-relaxed text-center" dir="rtl">
+                    <p className="mb-2">
+                      مشروع يهدف إلى مساعدة الصم وضعاف السمع من خلال بناء مجموعة بيانات للغة الإشارة العربية.
+                    </p>
+                    <p className="text-gray-900 font-bold text-lg bg-blue-50 py-2 px-4 rounded-lg inline-block mt-1">
+                      مشاركتك البسيطة تصنع فرقاً كبيراً في حياتهم!
+                    </p>
+                  </div>
                 </div>
 
                 <div className="space-y-6">
@@ -479,8 +513,8 @@ export default function ArSLDatasetCollection() {
                       key={index}
                       className={cn(
                         "h-2 rounded-full transition-all duration-300",
-                        index === currentInstructionPage 
-                          ? "w-8 bg-blue-600" 
+                        index === currentInstructionPage
+                          ? "w-8 bg-blue-600"
                           : "w-2 bg-gray-200"
                       )}
                     />
@@ -497,7 +531,7 @@ export default function ArSLDatasetCollection() {
                         {instructionPages[currentInstructionPage].description}
                       </p>
                     </div>
-                    
+
                     <ul className="space-y-3">
                       {instructionPages[currentInstructionPage].points.map((point, i) => (
                         <li key={i} className="flex items-start gap-2 text-gray-700">
@@ -540,6 +574,16 @@ export default function ArSLDatasetCollection() {
               <div className="inline-block bg-white px-8 py-4 rounded-xl shadow-sm border border-gray-200">
                 <p className="text-sm text-gray-500 mb-1">الإشارة الحالية</p>
                 <p className="text-4xl font-bold text-gray-900" dir="rtl">{currentSign?.word}</p>
+              </div>
+            </div>
+
+            {/* البانر التحذيري الجديد للكادر */}
+            <div className="bg-blue-50 border-r-4 border-blue-600 p-4 mb-6 rounded-lg mx-auto max-w-4xl shadow-sm text-right" dir="rtl">
+              <div className="flex items-start gap-3">
+                <span className="text-xl sm:text-2xl flex-shrink-0 pt-0.5">💡</span>
+                <p className="text-blue-900 font-bold text-sm sm:text-base leading-relaxed m-0">
+                  <span className="text-blue-700">خليك في الكادر!</span> اتأكد إن جسمك ظاهر من الوسط للرأس، وإيديك الاتنين مش بيخرجوا بره الشاشة طول الإشارة.
+                </p>
               </div>
             </div>
 
@@ -773,7 +817,7 @@ export default function ArSLDatasetCollection() {
                 </div>
 
                 <p className="text-xs text-gray-400 mt-6">
-                  © ٢٠٢٦ وصال - مشروع الحفاظ على لغة الإشارة العربية
+                  © ٢٠٢٦ وِصال - مشروع الحفاظ على لغة الإشارة العربية
                 </p>
               </div>
             </Card>
