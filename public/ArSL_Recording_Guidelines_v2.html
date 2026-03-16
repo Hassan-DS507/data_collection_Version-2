@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>دليل تصوير لغة الإشارة العربية</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Cairo', Arial, sans-serif;
+      background: #f0f2f5;
+      color: #1a1a2e;
+      direction: rtl;
+      padding: 30px 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #0f3460, #16213e);
+      border-radius: 20px;
+      padding: 40px;
+      text-align: center;
+      margin-bottom: 30px;
+      color: white;
+    }
+
+    .header-emoji {
+      font-size: 60px;
+      margin-bottom: 15px;
+      display: block;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    /* Section card */
+    .card {
+      background: white;
+      border-radius: 16px;
+      margin-bottom: 20px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 18px 24px;
+      border-bottom: 2px solid #f0f2f5;
+    }
+
+    .card-header.blue {
+      background: #e8f0fe;
+      border-bottom-color: #4285f4;
+    }
+
+    .card-header.green {
+      background: #e8f5e9;
+      border-bottom-color: #34a853;
+    }
+
+    .card-header.orange {
+      background: #fff3e0;
+      border-bottom-color: #ff6d00;
+    }
+
+    .card-header.red {
+      background: #ffebee;
+      border-bottom-color: #ea4335;
+    }
+
+    .card-header.purple {
+      background: #f3e5f5;
+      border-bottom-color: #7b1fa2;
+    }
+
+    .card-header.teal {
+      background: #e0f2f1;
+      border-bottom-color: #00897b;
+    }
+
+    .card-icon {
+      font-size: 28px;
+    }
+
+    .card-title {
+      font-size: 17px;
+      font-weight: 900;
+      color: #1a1a2e;
+    }
+
+    .card-body {
+      padding: 24px;
+    }
+
+    /* Steps */
+    .step {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 18px;
+      padding-bottom: 18px;
+      border-bottom: 1px dashed #e0e0e0;
+    }
+
+    .step:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .step-num {
+      min-width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #0f3460;
+      color: white;
+      font-weight: 900;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .step-content {
+      flex: 1;
+      padding-top: 4px;
+    }
+
+    .step-title {
+      font-weight: 700;
+      font-size: 15px;
+      margin-bottom: 5px;
+    }
+
+    .step-text {
+      font-size: 13px;
+      color: #555;
+      line-height: 1.7;
+    }
+
+    /* Do/Dont */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 0;
+    }
+
+    .do-box,
+    .dont-box {
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .do-box {
+      background: #e8f5e9;
+      border: 2px solid #34a853;
+    }
+
+    .dont-box {
+      background: #ffebee;
+      border: 2px solid #ea4335;
+    }
+
+    .box-label {
+      font-weight: 900;
+      font-size: 15px;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .do-box .box-label {
+      color: #2e7d32;
+    }
+
+    .dont-box .box-label {
+      color: #c62828;
+    }
+
+    .box-item {
+      font-size: 13px;
+      padding: 7px 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+      line-height: 1.5;
+    }
+
+    .box-item:last-child {
+      border-bottom: none;
+    }
+
+    /* Auto badge */
+    .auto-badge {
+      display: inline-block;
+      background: #34a853;
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+
+    /* Timing visual */
+    .timing-visual {
+      display: flex;
+      align-items: stretch;
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 20px 0;
+      direction: ltr;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .t-block {
+      flex: 1;
+      padding: 16px 10px;
+      text-align: center;
+    }
+
+    .t-block .t-icon {
+      font-size: 28px;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .t-block .t-time {
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .t-block .t-label {
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .t-countdown {
+      background: #fff3e0;
+      color: #e65100;
+    }
+
+    .t-still {
+      background: #e3f2fd;
+      color: #1565c0;
+    }
+
+    .t-sign {
+      background: #0f3460;
+      color: white;
+      flex: 2;
+    }
+
+    .t-rest {
+      background: #e3f2fd;
+      color: #1565c0;
+    }
+
+    .t-divider {
+      width: 3px;
+      background: white;
+      flex-shrink: 0;
+    }
+
+    .timing-tip {
+      background: #fff8e1;
+      border-right: 4px solid #ffa000;
+      border-radius: 0 10px 10px 0;
+      padding: 14px 16px;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #555;
+      margin-top: 5px;
+    }
+
+    .timing-tip strong {
+      color: #e65100;
+    }
+
+    /* Action buttons visual */
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      margin: 16px 0;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn-demo {
+      border-radius: 10px;
+      padding: 12px 20px;
+      font-size: 13px;
+      font-weight: 700;
+      text-align: center;
+      min-width: 120px;
+      font-family: 'Cairo', Arial, sans-serif;
+    }
+
+    .btn-save {
+      background: #34a853;
+      color: white;
+    }
+
+    .btn-retake {
+      background: #ea4335;
+      color: white;
+    }
+
+    .btn-skip {
+      background: #f0f2f5;
+      color: #555;
+      border: 2px solid #ddd;
+    }
+
+    .btn-label {
+      font-size: 10px;
+      opacity: 0.8;
+      font-weight: 400;
+      display: block;
+      margin-top: 3px;
+    }
+
+    /* DANGER */
+    .danger-card {
+      background: linear-gradient(135deg, #b71c1c, #c62828);
+      border-radius: 16px;
+      padding: 28px;
+      color: white;
+      margin-bottom: 20px;
+    }
+
+    .danger-card h2 {
+      font-size: 20px;
+      font-weight: 900;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .danger-item {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 12px;
+      font-size: 14px;
+      line-height: 1.7;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .danger-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .danger-item-icon {
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    /* Info box */
+    .info-box {
+      background: #e3f2fd;
+      border-right: 4px solid #1565c0;
+      border-radius: 0 10px 10px 0;
+      padding: 14px 16px;
+      font-size: 13px;
+      line-height: 1.8;
+      color: #1a1a2e;
+      margin: 14px 0;
+    }
+
+    .success-box {
+      background: #e8f5e9;
+      border-right: 4px solid #34a853;
+      border-radius: 0 10px 10px 0;
+      padding: 14px 16px;
+      font-size: 13px;
+      line-height: 1.8;
+      color: #1a1a2e;
+      margin: 14px 0;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 20px;
+      color: #aaa;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 600px) {
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+
+      .header h1 {
+        font-size: 22px;
+      }
+
+      .btn-row {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+
+    @media print {
+      body {
+        background: white;
+        padding: 10px;
+      }
+
+      .card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+        page-break-inside: avoid;
+      }
+
+      .danger-card {
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <!-- HEADER -->
+    <div class="header">
+      <span class="header-emoji">🤟</span>
+      <h1>دليل تصوير لغة الإشارة العربية</h1>
+      <p>اقرأ هذا الدليل مرة واحدة قبل البدء<br>الموقع هيتعامل مع كل التفاصيل التقنية تلقائياً — مهمتك تركّز في الإشارة
+        بس</p>
+    </div>
+
+    <!-- STEP 1: LOGIN -->
+    <div class="card">
+      <div class="card-header purple">
+        <span class="card-icon">👤</span>
+        <span class="card-title">الخطوة الأولى: تسجيل الدخول</span>
+      </div>
+      <div class="card-body">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-title">ادخل اسمك مرة واحدة فقط</div>
+            <div class="step-text">
+              كل اللي عليك تعمله في البداية إنك تكتب اسمك الأول بالعربي. الموقع هيحفظ اسمك عشان يربطه بكل فيديوهاتك
+              تلقائياً. المجهود الباقي كله على النظام!
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: ENVIRONMENT -->
+    <div class="card">
+      <div class="card-header blue">
+        <span class="card-icon">🎥</span>
+        <span class="card-title">الخطوة الثانية: ظبط إطار التصوير (مهم جداً!)</span>
+      </div>
+      <div class="card-body">
+        <div class="two-col">
+          <div class="do-box">
+            <div class="box-label">✅ لازم يكون كده</div>
+            <div class="box-item">الكاميرا ثابتة تماماً طول الوقت</div>
+            <div class="box-item">راسك، كتافك، وإيديك الاتنين واضحين بالكامل جوة الكادر</div>
+            <div class="box-item">خلفية سادة وإضاءة واضحة</div>
+          </div>
+          <div class="dont-box">
+            <div class="box-label">❌ ابعد عن كده</div>
+            <div class="box-item">الكاميرا بتتهز أو بتتحرك</div>
+            <div class="box-item">جزء من إيدك أو راسك بيخرج بره الكادر وانت بتعمل الإشارة</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: RECORDING FLOW -->
+    <div class="card">
+      <div class="card-header green">
+        <span class="card-icon">🎬</span>
+        <span class="card-title">الخطوة الثالثة: طريقة التسجيل</span>
+      </div>
+      <div class="card-body">
+
+        <div class="timing-tip" style="margin-bottom: 24px; border-right-color: #f50057;">
+          💡 <strong>خليك في الكادر!</strong> اتأكد إن جسمك ظاهر من الوسط للرأس، وإيديك الاتنين مش بيخرجوا بره الشاشة
+          طول الإشارة.
+        </div>
+
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-title">شوف الفيديو المرجعي بتركيز 👀</div>
+            <div class="step-text">قبل ما تبدأ، اتفرج على الفيديو المرجعي للإشارة المطلوبة وحاول تقلدها صح.</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="step-title">اضغط "ابدأ التسجيل" 🔴</div>
+            <div class="step-text">لما تكون مستعد، دوس على زرار "ابدأ التسجيل" (Start Recording).</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="step-title">استعد خلال الـ 3 ثواني ⏱️</div>
+            <div class="step-text">هيظهرلك عد تنازلي ٣ ثواني. استغل الوقت ده عشان تقف ثابت وإيديك تحت جنبك (وضعية
+              الراحة).</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <div class="step-title">سجل لمدة 5 ثواني 🎥</div>
+            <div class="step-text">الكاميرا هتسجل تلقائياً لمدة ٥ ثواني بالظبط. اعمل الإشارة براحتك، ولما تخلص، رجع
+              إيديك لوضعية الراحة تاني واثبت لحد ما الوقت يخلص.</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">5</div>
+          <div class="step-content">
+            <div class="step-title">راجع الفيديو 🔍</div>
+            <div class="step-text">بعد ما الـ ٥ ثواني يخلصوا، الفيديو هيشتغل تلقائياً عشان تتأكد إنه مظبوط.</div>
+          </div>
+        </div>
+
+        <div class="info-box" style="margin-top: 20px;">
+          الخيارات المتاحة بعد المراجعة:
+        </div>
+
+        <div class="btn-row">
+          <div class="btn-demo btn-save">
+            💾 حفظ والتالي
+            <span class="btn-label">الإشارة صح — النظام هيحفظ الفيديو ويسميه تلقائي ويرقمه لوحده</span>
+          </div>
+          <div class="btn-demo btn-retake">
+            🔄 إعادة
+            <span class="btn-label">لو حسيت إنك غلطت أو خرجت بره الكادر — دوس إعادة وسجل تاني</span>
+          </div>
+          <div class="btn-demo btn-skip">
+            ⏭️ تخطي
+            <span class="btn-label">لو مش عارف الإشارة دي خالص — دوس تخطي</span>
+          </div>
+        </div>
+
+        <div class="success-box" style="margin-top: 20px;">
+          ✨ <strong>كل حاجة أوتوماتيك:</strong> إنت بس ركز في تأدية الإشارة بشكل صحيح. النظام هيسمي الملفات، يعد
+          المحاولات، ويرفع الفيديوهات من غير ما يطلب منك أي تدخل!
+        </div>
+
+      </div>
+    </div>
+
+    <div class="footer">
+      🤟 ArSL Dataset Project — 2026 | أي سؤال؟ تواصل مع
+      <a href="mailto:wesall.g.team@gmail.com"
+        style="color: #1565c0; text-decoration: none; font-weight: 700;">wesall.g.team@gmail.com</a>
+    </div>
+
+  </div>
+</body>
+
+</html>
