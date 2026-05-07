@@ -1,15 +1,15 @@
-import CONFIG from "./config"
-
 export interface Sign {
   word: string
-  video: string
+  fileId: string
 }
 
-function getDrivePreviewUrl(fileId: string): string {
+export const WORD_LIST: string[] = [
+  "انا", "انت", "هو", "احنا", "عاوز",
+  "اقعد", "اقف", "احفظ", "جعان", "عطشان",
+  "مبسوط", "زعلان", "مياه", "بيت", "مدرسة",
+  "صديق", "اخت", "اخ", "ضيف", "شكرا", "اتفضل",
+]
+
+export function getDriveEmbedUrl(fileId: string): string {
   return `https://drive.google.com/file/d/${fileId}/preview`
 }
-
-export const SIGNS: Sign[] = CONFIG.referenceVideos.map((item:any) => ({
-  word: item.word,
-  video: getDrivePreviewUrl(item.fileId)
-}))

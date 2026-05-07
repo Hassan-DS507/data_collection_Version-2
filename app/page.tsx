@@ -16,13 +16,13 @@ import {
   Upload,
   User,
   Heart,
-  HelpCircle
+  HelpCircle,
+  Loader2
 } from "lucide-react"
 import Image from "next/image"
-import { SIGNS, type Sign } from "@/config/signs"
+import { type Sign, getDriveEmbedUrl } from "@/config/signs"
 import { cn } from "@/lib/utils"
 
-// Configuration
 const CONFIG = {
   recordingDuration: 5000,
   countdownDuration: 3,
@@ -61,6 +61,8 @@ export default function ArSLDatasetCollection() {
   const [showExitDialog, setShowExitDialog] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [currentInstructionPage, setCurrentInstructionPage] = useState(0)
+  const [signs, setSigns] = useState<Sign[]>([])
+  const [signsLoading, setSignsLoading] = useState(true)
 
   const streamRef = useRef<MediaStream | null>(null)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
@@ -70,9 +72,9 @@ export default function ArSLDatasetCollection() {
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const currentSign: Sign | undefined = SIGNS[currentIndex]
-  const totalSigns = SIGNS.length
-  const progress = ((currentIndex + 1) / totalSigns) * 100
+  const currentSign: Sign | undefined = signs[currentIndex]
+  const totalSigns = signs.length
+  const progress = totalSigns > 0 ? ((currentIndex + 1) / totalSigns) * 100 : 0
 
   // صفحات التعليمات المقسمة
   const instructionPages = [
@@ -129,13 +131,22 @@ export default function ArSLDatasetCollection() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  // Helper to format Google Drive links
-  const getEmbedUrl = (url: string) => {
-    if (!url) return "";
-    if (url.includes('preview') || !url.includes('drive.google.com')) return url;
-    const fileId = url.split('/d/')[1]?.split('/')[0] || url.split('id=')[1];
-    return `https://drive.google.com/file/d/${fileId}/preview`;
-  };
+  useEffect(() => {
+    async function loadReferenceVideos() {
+      try {
+        const res = await fetch('/api/reference-videos');
+        const data = await res.json();
+        if (data.videos && data.videos.length > 0) {
+          setSigns(data.videos);
+        }
+      } catch (err) {
+        console.error('Failed to load reference videos:', err);
+      } finally {
+        setSignsLoading(false);
+      }
+    }
+    loadReferenceVideos();
+  }, []);
 
   // التحقق من صحة الاسم (منع المسافات)
   const validateUsername = (name: string) => {
@@ -568,7 +579,16 @@ export default function ArSLDatasetCollection() {
           </div>
         )}
 
-        {step === "recording" && (
+        {step === "recording" && signsLoading && (
+          <div className="flex items-center justify-center py-24">
+            <div className="text-center">
+              <Loader2 className="w-10 h-10 animate-spin text-blue-600 mx-auto mb-4" />
+              <p className="text-gray-500">جاري تحميل الإشارات المرجعية...</p>
+            </div>
+          </div>
+        )}
+
+        {step === "recording" && !signsLoading && (
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-6">
               <div className="inline-block bg-white px-8 py-4 rounded-xl shadow-sm border border-gray-200">
@@ -598,7 +618,7 @@ export default function ArSLDatasetCollection() {
                 </div>
                 <div className="aspect-video bg-black">
                   <iframe
-                    src={getEmbedUrl(currentSign?.video || "")}
+                    src={getDriveEmbedUrl(currentSign?.fileId || "")}
                     className="w-full h-full"
                     allow="autoplay"
                   />

@@ -5,7 +5,7 @@ import './globals.css'
 
 // استخدام خط واحد نظيف بدلاً من خطين
 const inter = Inter({ 
-  subsets: ['latin', 'arabic'], // دعم العربية والإنجليزية
+  subsets: ['latin'],
   display: 'swap',
   variable: '--font-inter',
 })
