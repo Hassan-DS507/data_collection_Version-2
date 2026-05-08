@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useState, useCallback } from "react"
+import { useRef, useState, useCallback, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import {
@@ -16,6 +16,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { getDriveEmbedUrl, type Sign } from "@/config/signs"
+import { usePoseDetection } from "@/hooks/usePoseDetection"
 
 interface UseCameraReturn {
   streamRef: React.MutableRefObject<MediaStream | null>
@@ -66,6 +67,19 @@ interface RecordingViewProps {
 export function RecordingView({ camera, recording, upload, navigation, username, onComplete }: RecordingViewProps) {
   const [showExitDialog, setShowExitDialog] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
+  const poseCanvasRef = useRef<HTMLCanvasElement>(null)
+  const pose = usePoseDetection()
+
+  useEffect(() => {
+    if (camera.cameraReady && pose.isModelLoaded && camera.previewRef.current && poseCanvasRef.current) {
+      pose.startDetection(camera.previewRef.current, poseCanvasRef.current)
+      return () => pose.stopDetection()
+    }
+  }, [camera.cameraReady, pose.isModelLoaded, pose.startDetection, pose.stopDetection])
+
+  useEffect(() => {
+    if (recording.isRecording) pose.enhanceForRecording()
+  }, [recording.isRecording, pose.enhanceForRecording])
 
   if (!navigation.currentSign) {
     return (
@@ -189,6 +203,14 @@ export function RecordingView({ camera, recording, upload, navigation, username,
                   )}
                 />
 
+                <canvas
+                  ref={poseCanvasRef}
+                  className={cn(
+                    "absolute inset-0 w-full h-full pointer-events-none z-[5]",
+                    recording.recordedBlob || !camera.cameraReady ? "hidden" : "block",
+                  )}
+                />
+
                 {recording.isRecording && (
                   <div className="absolute top-3 right-3 flex items-center gap-2 bg-black/80 px-3 py-1.5 rounded-full">
                     <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
@@ -229,7 +251,7 @@ export function RecordingView({ camera, recording, upload, navigation, username,
                     <Button
                       className="flex-1 h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
                       onClick={recording.startCountdown}
-                      disabled={recording.isRecording || recording.countdown !== null || !camera.cameraReady}
+                      disabled={recording.isRecording || recording.countdown !== null || !camera.cameraReady || !pose.isPoseValid}
                     >
                       {recording.isRecording ? (
                         <>جاري التسجيل...</>
@@ -275,6 +297,12 @@ export function RecordingView({ camera, recording, upload, navigation, username,
                         </>
                       )}
                     </Button>
+                  </div>
+                )}
+
+                {!recording.recordedBlob && pose.poseFeedback && (
+                  <div className="p-3 rounded-lg text-sm text-center bg-red-50 text-red-800 border border-red-200">
+                    {pose.poseFeedback}
                   </div>
                 )}
 
