@@ -18,6 +18,7 @@ import {
 import { cn } from "@/lib/utils"
 import { getDriveEmbedUrl, type Sign } from "@/config/signs"
 import { usePoseDetection } from "@/hooks/usePoseDetection"
+import { logger } from "@/services/logger"
 
 interface UseCameraReturn {
   streamRef: React.MutableRefObject<MediaStream | null>
@@ -50,6 +51,7 @@ interface UseNavReturn {
   currentSign: Sign | undefined
   totalSigns: number
   totalRecorded: number
+  totalSkipped: number
   progress: number
   nextWord: () => "continue" | "complete"
   skipWord: () => "continue" | "complete"
@@ -72,6 +74,12 @@ export function RecordingView({ camera, recording, upload, navigation, username,
   const containerRef = useRef<HTMLDivElement>(null)
   const poseCanvasRef = useRef<HTMLCanvasElement>(null)
   const pose = usePoseDetection()
+
+  useEffect(() => {
+    if (recording.recordedBlob && navigation.currentSign) {
+      logger.info("recording_complete", { word: navigation.currentSign.word, blobSize: recording.recordedBlob.size })
+    }
+  }, [recording.recordedBlob])
 
   useEffect(() => {
     if (camera.cameraReady && pose.isModelLoaded && camera.previewRef.current && poseCanvasRef.current) {
@@ -115,12 +123,13 @@ export function RecordingView({ camera, recording, upload, navigation, username,
   }, [recording.recordedBlob, recording.resetRecording, navigation.currentSign, navigation.nextWord, navigation.recordWord, navigation.saveSession, upload, username, onComplete, onQueueForRetry])
 
   const handleSkip = useCallback(() => {
+    if (navigation.currentSign) logger.info("word_skipped", { word: navigation.currentSign.word })
     const result = navigation.skipWord()
     navigation.saveSession(username)
     recording.resetRecording()
     upload.resetUpload()
     if (result === "complete") onComplete()
-  }, [navigation.skipWord, navigation.saveSession, recording.resetRecording, upload.resetUpload, onComplete, username])
+  }, [navigation.skipWord, navigation.saveSession, recording.resetRecording, upload.resetUpload, onComplete, username, navigation.currentSign])
 
   if (!navigation.currentSign) {
     return (
@@ -360,6 +369,7 @@ export function RecordingView({ camera, recording, upload, navigation, username,
                   className="flex-1 h-10 bg-red-600 hover:bg-red-700 text-white"
                   onClick={() => {
                     setShowExitDialog(false)
+                    logger.info("session_ended", { totalRecorded: navigation.totalRecorded, totalSkipped: navigation.totalSkipped, currentWord: navigation.currentSign?.word })
                     onComplete()
                   }}
                 >

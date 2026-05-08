@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from "react"
 import { PoseLandmarker, FilesetResolver } from "@mediapipe/tasks-vision"
+import { logger } from "@/services/logger"
 
 const MODEL_URL =
   "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task"
@@ -43,6 +44,7 @@ export function usePoseDetection() {
         if (!cancelled) setIsModelLoaded(true)
       } catch (e) {
         console.warn("[PoseDetection] Model load failed, pose check disabled:", e)
+        logger.warn("mediapipe_load_failed", { error: String(e) })
       }
     }
     init()

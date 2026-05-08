@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react"
 import { type Sign } from "@/config/signs"
+import { logger } from "@/services/logger"
 
 export function useUpload() {
   const [uploadStatus, setUploadStatus] = useState<"idle" | "uploading" | "success" | "error">("idle")
@@ -40,6 +41,8 @@ export function useUpload() {
     setUploadStatus("uploading")
     setStatusMessage("جاري رفع الفيديو...")
 
+    const uploadStart = performance.now()
+
     try {
       const formData = new FormData()
       formData.append("video", blob)
@@ -55,10 +58,16 @@ export function useUpload() {
       const data = await response.json()
       if (!response.ok) throw new Error(data.error || "فشل الرفع")
 
+      const uploadDuration = Math.round(performance.now() - uploadStart)
+      logger.info("upload_success", { word: currentSign.word, fileSize: blob.size, uploadDurationMs: uploadDuration })
+
       setUploadStatus("success")
       setStatusMessage("تم حفظ الفيديو بنجاح!")
       return { success: true, filename }
     } catch (error: any) {
+      const uploadDuration = Math.round(performance.now() - uploadStart)
+      logger.error("upload_failed", { word: currentSign.word, fileSize: blob.size, uploadDurationMs: uploadDuration, error: error.message })
+
       console.error("Upload error:", error)
       setUploadStatus("error")
       setStatusMessage(`فشل الرفع: ${error.message}`)

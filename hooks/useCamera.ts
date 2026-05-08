@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useRef, useCallback, useEffect } from "react"
+import { logger } from "@/services/logger"
 
 export function useCamera() {
   const streamRef = useRef<MediaStream | null>(null)
@@ -44,6 +45,7 @@ export function useCamera() {
       setCameraReady(true)
     } catch (error: any) {
       console.error("Camera initialization error:", error)
+      logger.error("camera_init_failed", { errorCode: error.name, errorMessage: error.message })
       let msg = "لا يمكن الوصول للكاميرا. يرجى التحقق من الصلاحيات."
       if (error.name === "NotAllowedError" || error.name === "PermissionDeniedError")
         msg = "تم رفض الوصول للكاميرا. يرجى السماح بالوصول في إعدادات المتصفح."

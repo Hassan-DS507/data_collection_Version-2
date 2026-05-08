@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Header } from "@/components/recording/Header"
 import { WelcomeScreen } from "@/components/recording/WelcomeScreen"
 import { InstructionsScreen } from "@/components/recording/InstructionsScreen"
@@ -13,6 +13,7 @@ import { useRecording } from "@/hooks/useRecording"
 import { useUpload } from "@/hooks/useUpload"
 import { useSignNavigation } from "@/hooks/useSignNavigation"
 import { useUploadQueue } from "@/hooks/useUploadQueue"
+import { logger } from "@/services/logger"
 
 type Step = "welcome" | "instructions" | "recording" | "complete"
 
@@ -53,8 +54,15 @@ export default function ArSLDatasetCollection() {
         formData.append("username", item.username)
         formData.append("word", item.word)
         const res = await fetch("/api/upload", { method: "POST", body: formData })
-        if (res.ok) await uploadQueue.removeFromQueue(item.id!)
-      } catch {}
+        if (res.ok) {
+          await uploadQueue.removeFromQueue(item.id!)
+          logger.info("retry_success", { filename: item.filename })
+        } else {
+          logger.warn("retry_failed", { filename: item.filename })
+        }
+      } catch {
+        logger.warn("retry_failed", { filename: item.filename })
+      }
     }
   }, [uploadQueue])
 
@@ -149,6 +157,7 @@ export default function ArSLDatasetCollection() {
         {step === "instructions" && (
           <InstructionsScreen
             onStart={() => {
+              logger.info("session_started", { totalSigns: navigation.totalSigns })
               setStep("recording")
               camera.initCamera()
             }}
@@ -167,6 +176,7 @@ export default function ArSLDatasetCollection() {
             }}
             onComplete={() => {
               camera.stopCamera()
+              logger.info("session_completed", { totalRecorded: navigation.totalRecorded, totalSkipped: navigation.totalSkipped, totalSigns: navigation.totalSigns })
               navigation.clearSession()
               setStep("complete")
             }}
