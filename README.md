@@ -298,14 +298,7 @@ We welcome contributions from researchers, developers, and sign language advocat
 
 ## 👥 Team & Credits
 
-**Team وصال (Wesall)** is a group of researchers, engineers, and accessibility advocates committed to advancing Arabic Sign Language technology.
-
-| Role | Contributor |
-|------|-------------|
-| **Project Lead & Architecture** | Abdulrahman M. Rezk |
-| **AI & Pose Detection** | Abdulrahman M. Rezk |
-| **UI/UX & Arabic Design** | Team Wesall |
-| **Data Collection Coordination** | Dalia (Reference Video Lead) |
+**Team وصال (Wesall)** — a group of researchers, engineers, and accessibility advocates committed to advancing Arabic Sign Language technology.
 
 *Special thanks to the Deaf community across the Arab world for their inspiration and guidance.*
 
