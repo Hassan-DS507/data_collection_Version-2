@@ -13,6 +13,7 @@ import {
   RotateCcw,
   Upload,
   Loader2,
+  RefreshCw,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { getDriveEmbedUrl, type Sign } from "@/config/signs"
@@ -41,7 +42,7 @@ interface UseRecordingReturn {
 interface UseUploadReturn {
   uploadStatus: "idle" | "uploading" | "success" | "error"
   statusMessage: string
-  uploadRecording: (blob: Blob, currentSign: Sign, username: string) => Promise<boolean>
+  uploadRecording: (blob: Blob, currentSign: Sign, username: string, pregeneratedFilename?: string) => Promise<{ success: boolean; filename?: string }>
   resetUpload: () => void
 }
 
@@ -53,6 +54,7 @@ interface UseNavReturn {
   nextWord: () => "continue" | "complete"
   skipWord: () => "continue" | "complete"
   recordWord: () => void
+  saveSession: (username: string) => void
 }
 
 interface RecordingViewProps {
@@ -62,9 +64,10 @@ interface RecordingViewProps {
   navigation: UseNavReturn
   username: string
   onComplete: () => void
+  onQueueForRetry?: (blob: Blob, filename: string, word: string, username: string) => void
 }
 
-export function RecordingView({ camera, recording, upload, navigation, username, onComplete }: RecordingViewProps) {
+export function RecordingView({ camera, recording, upload, navigation, username, onComplete, onQueueForRetry }: RecordingViewProps) {
   const [showExitDialog, setShowExitDialog] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const poseCanvasRef = useRef<HTMLCanvasElement>(null)
@@ -94,24 +97,30 @@ export function RecordingView({ camera, recording, upload, navigation, username,
 
   const handleUploadAndAdvance = useCallback(async () => {
     if (!recording.recordedBlob || !navigation.currentSign) return
-    const ok = await upload.uploadRecording(recording.recordedBlob, navigation.currentSign, username)
-    if (ok) {
+    const blob = recording.recordedBlob
+    const sign = navigation.currentSign
+    const { success, filename } = await upload.uploadRecording(blob, sign, username)
+    if (success) {
       navigation.recordWord()
       setTimeout(() => {
         const result = navigation.nextWord()
+        navigation.saveSession(username)
         recording.resetRecording()
         upload.resetUpload()
         if (result === "complete") onComplete()
       }, 1000)
+    } else if (filename && onQueueForRetry) {
+      onQueueForRetry(blob, filename, sign.word, username)
     }
-  }, [recording.recordedBlob, recording.resetRecording, navigation.currentSign, navigation.nextWord, navigation.recordWord, upload, username, onComplete])
+  }, [recording.recordedBlob, recording.resetRecording, navigation.currentSign, navigation.nextWord, navigation.recordWord, navigation.saveSession, upload, username, onComplete, onQueueForRetry])
 
   const handleSkip = useCallback(() => {
     const result = navigation.skipWord()
+    navigation.saveSession(username)
     recording.resetRecording()
     upload.resetUpload()
     if (result === "complete") onComplete()
-  }, [navigation.skipWord, recording.resetRecording, upload.resetUpload, onComplete])
+  }, [navigation.skipWord, navigation.saveSession, recording.resetRecording, upload.resetUpload, onComplete, username])
 
   if (!navigation.currentSign) {
     return (

@@ -7,24 +7,35 @@ export function useUpload() {
   const [uploadStatus, setUploadStatus] = useState<"idle" | "uploading" | "success" | "error">("idle")
   const [statusMessage, setStatusMessage] = useState("")
 
-  const uploadRecording = useCallback(async (blob: Blob, currentSign: Sign, username: string): Promise<boolean> => {
-    const safeWordId = currentSign.word.trim().replace(/\s+/g, "_")
-    const baseUsername = username.trim().replace(/\s+/g, "_")
+  const uploadRecording = useCallback(async (
+    blob: Blob,
+    currentSign: Sign,
+    username: string,
+    pregeneratedFilename?: string,
+  ): Promise<{ success: boolean; filename?: string }> => {
+    let filename: string
 
-    let userUuid = localStorage.getItem("user_uuid")
-    if (!userUuid) {
-      userUuid = Math.random().toString(36).substring(2, 6)
-      localStorage.setItem("user_uuid", userUuid)
+    if (pregeneratedFilename) {
+      filename = pregeneratedFilename
+    } else {
+      const safeWordId = currentSign.word.trim().replace(/\s+/g, "_")
+      const baseUsername = username.trim().replace(/\s+/g, "_")
+
+      let userUuid = localStorage.getItem("user_uuid")
+      if (!userUuid) {
+        userUuid = Math.random().toString(36).substring(2, 6)
+        localStorage.setItem("user_uuid", userUuid)
+      }
+
+      const safeUsername = `${baseUsername}_${userUuid}`
+      const storageKey = `take_${safeWordId}_${safeUsername}`
+      let currentTake = parseInt(localStorage.getItem(storageKey) || "0")
+      currentTake += 1
+      localStorage.setItem(storageKey, currentTake.toString())
+
+      const formattedTake = currentTake.toString().padStart(2, "0")
+      filename = `${safeWordId}_${safeUsername}_${formattedTake}.mp4`
     }
-
-    const safeUsername = `${baseUsername}_${userUuid}`
-    const storageKey = `take_${safeWordId}_${safeUsername}`
-    let currentTake = parseInt(localStorage.getItem(storageKey) || "0")
-    currentTake += 1
-    localStorage.setItem(storageKey, currentTake.toString())
-
-    const formattedTake = currentTake.toString().padStart(2, "0")
-    const filename = `${safeWordId}_${safeUsername}_${formattedTake}.mp4`
 
     setUploadStatus("uploading")
     setStatusMessage("جاري رفع الفيديو...")
@@ -46,12 +57,12 @@ export function useUpload() {
 
       setUploadStatus("success")
       setStatusMessage("تم حفظ الفيديو بنجاح!")
-      return true
+      return { success: true, filename }
     } catch (error: any) {
       console.error("Upload error:", error)
       setUploadStatus("error")
       setStatusMessage(`فشل الرفع: ${error.message}`)
-      return false
+      return { success: false, filename }
     }
   }, [])
 
