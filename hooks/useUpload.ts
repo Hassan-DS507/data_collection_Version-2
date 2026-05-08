@@ -1,0 +1,84 @@
+"use client"
+
+import { useState, useCallback } from "react"
+import { type Sign } from "@/config/signs"
+import { logger } from "@/services/logger"
+
+export function useUpload() {
+  const [uploadStatus, setUploadStatus] = useState<"idle" | "uploading" | "success" | "error">("idle")
+  const [statusMessage, setStatusMessage] = useState("")
+
+  const uploadRecording = useCallback(async (
+    blob: Blob,
+    currentSign: Sign,
+    username: string,
+    pregeneratedFilename?: string,
+  ): Promise<{ success: boolean; filename?: string }> => {
+    let filename: string
+
+    if (pregeneratedFilename) {
+      filename = pregeneratedFilename
+    } else {
+      const safeWordId = currentSign.word.trim().replace(/\s+/g, "_")
+      const baseUsername = username.trim().replace(/\s+/g, "_")
+
+      let userUuid = localStorage.getItem("user_uuid")
+      if (!userUuid) {
+        userUuid = Math.random().toString(36).substring(2, 6)
+        localStorage.setItem("user_uuid", userUuid)
+      }
+
+      const safeUsername = `${baseUsername}_${userUuid}`
+      const storageKey = `take_${safeWordId}_${safeUsername}`
+      let currentTake = parseInt(localStorage.getItem(storageKey) || "0")
+      currentTake += 1
+      localStorage.setItem(storageKey, currentTake.toString())
+
+      const formattedTake = currentTake.toString().padStart(2, "0")
+      filename = `${safeWordId}_${safeUsername}_${formattedTake}.mp4`
+    }
+
+    setUploadStatus("uploading")
+    setStatusMessage("جاري رفع الفيديو...")
+
+    const uploadStart = performance.now()
+
+    try {
+      const formData = new FormData()
+      formData.append("video", blob)
+      formData.append("filename", filename)
+      formData.append("username", username)
+      formData.append("word", currentSign.word)
+
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      })
+
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error || "فشل الرفع")
+
+      const uploadDuration = Math.round(performance.now() - uploadStart)
+      logger.info("upload_success", { word: currentSign.word, fileSize: blob.size, uploadDurationMs: uploadDuration })
+
+      setUploadStatus("success")
+      setStatusMessage("تم حفظ الفيديو بنجاح!")
+      return { success: true, filename }
+    } catch (error: any) {
+      const uploadDuration = Math.round(performance.now() - uploadStart)
+      logger.error("upload_failed", { word: currentSign.word, fileSize: blob.size, uploadDurationMs: uploadDuration, error: error.message })
+
+      console.error("Upload error:", error)
+      setUploadStatus("error")
+      setStatusMessage(`فشل الرفع: ${error.message}`)
+      return { success: false, filename }
+    }
+  }, [])
+
+  const resetUpload = useCallback(() => {
+    setUploadStatus("idle")
+    setStatusMessage("")
+  }, [])
+
+  return { uploadStatus, statusMessage, uploadRecording, resetUpload }
+}
